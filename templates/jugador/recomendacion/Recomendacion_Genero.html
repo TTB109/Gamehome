@@ -1,0 +1,13 @@
+{% extends "baseU.html" %}
+{% block title %} Recomendacion Genero {% endblock title%}
+{% block content %}
+<div>
+    <h1 class="center-align titulo">Recomendacion Genero </h1>
+</div>
+
+<div>
+    <a href="{% url 'recomendacion' user.get_username %}" class="btn btn-danger btn-lg btn-block" name="" type="submit">Atras</a>
+</div>
+{% endblock content %}
+{% block scripts %}
+{% endblock scripts %}

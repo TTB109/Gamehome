@@ -1,0 +1,5 @@
+gamehouse/settings/settings.ini
+pasos.txt
+gamehouse/algorithms/lemmas.pkl
+gamehouse/algorithms/tagger.pkl
+gamehouse/var/
