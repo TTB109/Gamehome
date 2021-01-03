@@ -40,6 +40,7 @@ urlpatterns = [
     path('obtener-cpus/',universales.obtener_cpus,name='obtener_cpus'),
     path('generar-tf-idf/', universales.generar_tf_idf , name='generar_tf_idf'),
     path('contar_caracteristicas/',universales.contar_caracteristicas,name='contar_caracteristicas'),
+    path('actualizar-direccion/', universales.actualizar_direccion, name="actualizar_direccion")
 ]
 
 if settings.ADMIN_ENABLED is True:

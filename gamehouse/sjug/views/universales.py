@@ -180,11 +180,12 @@ def obtener_cpus(request):
             print(cpus)
     return redirect('/algoritmos/')
 
-
 def generar_tf_idf(request):
     from gamehouse.algorithms.tf_idf import recomendar_tf_idf
     from gamehouse.sadm.models import Tf_Idf
     jugadores = Jugador.objects.exclude(juegos_favoritos=None)
+    """  [(DOOM 64, [(COD,0.),(),()] ),( ),( )]"""
+    recomendaciones = []
     for jugador in jugadores:
         favoritos = jugador.juegos_favoritos.all() #.values_list('uego',flat=True) #.distinct()
         print(jugador)
@@ -194,33 +195,29 @@ def generar_tf_idf(request):
         for favorito in favoritos:
             generos.update(favorito.juego.generos.all())
         generos = list(generos)
-        recomendacion = []
+        #recomendaciones = []
         for favorito in favoritos:
             pos = Tf_Idf.objects.get(juego = favorito.juego)
-            recomendacion.extend(recomendar_tf_idf(pos,generos))
-        print("La recomendacion generada es:")
-        print(recomendacion)
-    return redirect('/algoritmos/')
+            recomendacion = (favorito.juego,recomendar_tf_idf(pos,generos))
+            recomendaciones.append(recomendacion)
+    return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'recomendaciones':recomendaciones})
 
 import nltk
 from nltk.probability import FreqDist
 def contar_caracteristicas(request):
   from gamehouse.algorithms.caracteristicas import calcular_caracteristicas
   jugadores = Jugador.objects.all()
-  listJuegosCDE=[]
-  listJuegosCPU=[]
-  caracteristicaDE=[]
-  caracteristicaPU=[]
   for gamer in jugadores:
     generos_favoritos = gamer.generos.all()
     plataformas_favoritas = gamer.plataformas.all()
     carcde= CDE.objects.get(jugador=gamer)
-    carcpu= CPU.objects.get(jugador=gamer)
+    carcpu= CPU.objects.get(jugador=4)
     #carcpu= CPU.objects.get(jugador=4)
     #como van a cambiar combiene hacerlos cada vez y no haccer la tabla
-    caracteristicaDE.extend([carcde.cde0,carcde.cde1,carcde.cde2,carcde.cde3,carcde.cde4,carcde.cde5,carcde.cde6,carcde.cde7,carcde.cde8,carcde.cde9])
-    caracteristicaPU.extend([carcpu.cpu0,carcpu.cpu1,carcpu.cpu2,carcpu.cpu3,carcpu.cpu4,carcpu.cpu5,carcpu.cpu6,carcpu.cpu7,carcpu.cpu8,carcpu.cpu9])
+    caracteristicaDE = [carcde.cde0,carcde.cde1,carcde.cde2,carcde.cde3,carcde.cde4,carcde.cde5,carcde.cde6,carcde.cde7,carcde.cde8,carcde.cde9]
+    caracteristicaPU = [carcpu.cpu0,carcpu.cpu1,carcpu.cpu2,carcpu.cpu3,carcpu.cpu4,carcpu.cpu5,carcpu.cpu6,carcpu.cpu7,carcpu.cpu8,carcpu.cpu9]
     for genero in generos_favoritos:
+      print("Generos")
       juegos_genero = Juego.objects.filter(generos = genero)      
       if len(juegos_genero) > 20:#Elije los primeros 20
         juegos_genero = juegos_genero[:20]
@@ -237,7 +234,7 @@ def contar_caracteristicas(request):
         tabla_gen.juego=juego
         tabla_gen.cpus=cpus
         tabla_gen.cdes=cdes
-        tabla_gen.save()                                  
+        tabla_gen.save()                                 
     for plataforma in plataformas_favoritas:
       juegos_genero = Juego.objects.filter(plataformas = plataforma)
       if len(juegos_genero) > 20:#Elije los primeros 20
@@ -258,6 +255,15 @@ def contar_caracteristicas(request):
         tabla_pla.save()            
   return redirect('/algoritmos/')
 
+def actualizar_direccion(request):
+    from gamehouse.sadm.models import Tf_Idf
+    from django.conf import settings
+    ides = Juego.objects.all()
+    for ide in ides:
+        direccion = settings.ANALITYCS_DIR + str(ide.id_juego) +'.pkl'
+        nuevo = Tf_Idf(juego= ide, vector = direccion)
+        nuevo.save()
+    return redirect('/algoritmos/')
 
 def limpiar_descripciones(request):
     """ ESTA FUNCION LIMPIA LAS DESCRIPCIONES DE
@@ -271,3 +277,5 @@ def limpiar_descripciones(request):
         sucio.descripcion_limpia = None
         sucio.save()
     return redirect('/algoritmos')
+
+

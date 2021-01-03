@@ -52,6 +52,8 @@ def calcular_cpus(juegos):
 def calcular_caracteristicas(caracteristicas,frecuencia):
     cpus=""
     listtemp=[]
+    print("Número caracteristicas")
+    print(len(caracteristicas))
     for cde in caracteristicas:
         listtemp.append(frecuencia[cde])
     cpus=','.join(str(x) for x in listtemp)

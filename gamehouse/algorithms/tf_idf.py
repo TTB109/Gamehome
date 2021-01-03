@@ -272,6 +272,7 @@ def recomendar_tf_idf(game,generos):
         randomList = random.sample(range(0, numero_juegos), muestreo)
         for indice in randomList:
             juegos.append(genero.juego_set.all()[indice])
+            
         for juego in juegos:
             ruta = Tf_Idf.objects.get(juego = juego)
             dt = open(ruta.vector, 'rb')

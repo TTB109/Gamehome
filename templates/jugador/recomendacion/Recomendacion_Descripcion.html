@@ -48,7 +48,7 @@ cursor: pointer;
 
 .cbp-rfgrid li a img {
 max-width: 100%;
-opacity: 0;
+opacity: 1;
 
 }
 
@@ -94,14 +94,22 @@ padding: 0 8px;
     <h1 class="center-align titulo">Encontramos estos juegos similares por Descripción</h1>
 </div>
 
+<!--
+<div class="col-6 col-md-4">
+</div>
+-->
+
 <div class="col-12">
+{%for favorito,recomendacion in recomendaciones %}
     <ul class="cbp-rfgrid">
-    <div class="row">             
-      {%for juego,imagen in juegos %}
-        <li><a href="{% url 'ver_juego' juego.id_juego%}"><img src="{{imagen.referencia}}" width="520" height="180"/><div><strong>{{juego.titulo}}</strong></div></a></li>
-      {%endfor%}
+    <p style = "color:black;">Juegos similares a {{favorito}} </p>
+    <div class="row">
+      	{%for similar,puntaje in recomendacion %}      		  
+      		<li><a href="{% url 'ver_juego' similar.id_juego%}"><img src='https://www.mobygames.com/images/covers/s/392832-that-trivia-game-playstation-4-front-cover.jpg' width="520" height="180" ></img><div><strong>{{similar.titulo}}</strong></div></a></li>		 
+        {%endfor%}
     </div>
-    </div>  
+    {%endfor%}
+</div>  
 
 <div>
     <a href="{% url 'recomendacion' user.get_username %}" class="btn btn-danger btn-lg btn-block" name="" type="submit">Atras</a>
