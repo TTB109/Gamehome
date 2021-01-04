@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from gamehouse.sadm.models import Administrador,Tf_Idf
 from django.shortcuts import redirect,render
 from gamehouse.sjug.forms import UserForm,JugadorForm,UsuarioForm,OpinionForm
-from gamehouse.sjug.models import Jugador, Usuario,Imagen,Juego,Opinion,CPU,CDE,Vector_Caracteristicas
+from gamehouse.sjug.models import Jugador, Usuario,Imagen,Juego,Opinion,CPU,CDE,Vector_Caracteristicas,ListGeneros
 from django.http import Http404
 from pickle import NONE
 
@@ -206,15 +206,45 @@ def generar_tf_idf(request):
 def crear_vector_perfil(request):
     from gamehouse.algorithms.caracteristicas import calcular_cpus
     jugadores = Jugador.objects.exclude(opiniones=None)
-    for jugador in jugadores:
-        juegos = jugador.opiniones.filter(gusto__gte=6).order_by('puntaje_total').values_list('juego',flat=True).distinct()
+    for gamer in jugadores:
+        juegos = gamer.opiniones.filter(gusto__gte=6).order_by('puntaje_total').values_list('juego',flat=True).distinct()
         juegos = juegos.reverse()
         if juegos:
-            perfil_usuario=calcular_vec_usuario(juegos)
+            perfil_usuario=calcular_vec_usuario(juegos,gamer)
 
 
     perfil_pesos=[]
-    return redirect('/algoritmos/') 
+    return redirect('/algoritmos/')
+
+def vector_genero_plataforma(request):
+    from gamehouse.algorithms.caracteristicas import CountGen,CountPlat
+    for game in Juego.objects.all():
+        new=[]
+        newps=[]
+        genres=""
+        platforms=""
+        print(game.titulo)
+        for gen in game.generos.all():
+            new.append(gen.nombre)
+        new=list(dict.fromkeys(new))#Delete duplicates
+        new.sort()#Sort list
+        new=CountGen(new)
+        genres=(','.join(str(x) for x in new))
+
+        for pat in game.plataformas.all():
+            newps.append(pat.nombre)
+        newps=list(dict.fromkeys(newps))#Delete duplicates
+        newps.sort()#Sort list
+        newps=CountPlat(newps)
+        platforms=(','.join(str(x) for x in newps))
+
+        listbinario=ListGeneros()
+        listbinario.juego=game
+        listbinario.listgenero=genres
+        listbinario.listplataforma=platforms
+        listbinario.save()
+
+    return redirect('/algoritmos/')
 
 
 import nltk

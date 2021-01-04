@@ -59,10 +59,84 @@ def calcular_caracteristicas(caracteristicas,frecuencia):
     cpus=','.join(str(x) for x in listtemp)
     return cpus
 
-def calcular_vec_usuario(juegos):
+import numpy as np
+def calcular_vec_usuario(juegos,gamer):
     perfil_usuario=[]
+    listgeneros=[]
+    listplataformas=[]
+    listcpu=[]
+    listcdes=[]
+    i=0
     for game in  juegos:
-        game_favorite=Vector_Caracteristicas.objects.filter(juego=game.titulo)
+        vector=Vector_Caracteristicas.objects.get(jugador=gamer,juego=game.titulo)
+        Gen_Pla=ListGeneros.objects.get(jugador=gamer, juego=game.titulo)
+        #Get elements from every game of user
+        cpus=vector.cpus
+        cdes=vector.cdes
+        genes=Gen_Pla.listgenero
+        platas=Gen_Pla.listplataforma
+        #Get a list of elements
+        cpus=cpus.split(',')
+        cdes=cdes.split(',')
+        platas=platas.split(',')
+        genes=genes.split(',')
+        #append in one list
+        listgeneros.append(genes)
+        listplataformas.append(platas)
+        listcpu.append(cpus)
+        listcdes.append(cdes)
+    #Change type to Array
+    gen = np.array(listgeneros)
+    pla = np.array(listplataformas)
+    ccpu = np.array(listcpu)
+    ccde = np.array(listcdes)
+    #Calculate de Mean
+    #Sort   Genero,Plataforma,CPU,CDE
+    perfil_usuario.append(np.average(gen, axis=0))
+    perfil_usuario.append(np.average(pla, axis=0))
+    perfil_usuario.append(np.average(ccpu, axis=0))
+    perfil_usuario.append(np.average(ccde, axis=0))
+
+        
         pass
+    #perfil_usuario=/i
     return perfil_usuario
+
+
+def CountGen(generos):
+  genes=['Acción','Arcade','Aventura','Bélico','Carreras','Deporte','Disparo',
+  'Educacional','Estrategia','Juegos de mesa','Música','Peleas','Plataforma',
+  'Rol (RPG)','Rompecabezas','Simulación','Survival horror','Trivia']
+  generos.sort()
+  genes.sort()
+  listgeneros=[]
+  cero=0
+  uno=1
+  for i in range(18): 
+    if genes[i] not in generos:
+      listgeneros.append(cero)
+    else:
+      listgeneros.append(uno)
+  #print("Esta son los generos",listgeneros)
+  return listgeneros
+
+def CountPlat(plataformas):
+  platas=['Android','Arcade','Dreamcast','Gameboy',
+  'Gameboy Advance','Gameboy Color','J2ME','Linux',
+  'NES','Neo Geo','Nintendo 3DS','Nintendo 64','Nintendo DS',
+  'Nintendo GameCube','Nintendo Switch','PS Vita','PSP',
+  'PlayStation 1','PlayStation 2','PlayStation 3','PlayStation 4',
+  'SNES','Wii','Wii U','Windows',
+  'Xbox','Xbox 360','Xbox One','iOS']
+  platas.sort()
+  plataformas.sort()
+  listplataformas=[]
+  cero=0
+  uno=1
+  for i in range(29): 
+    if platas[i] not in plataformas:
+      listplataformas.append(cero)
+    else:
+      listplataformas.append(uno)
+  return listplataformas
 

@@ -42,6 +42,7 @@ urlpatterns = [
     path('contar_caracteristicas/',universales.contar_caracteristicas,name='contar_caracteristicas'),
     path('crear_vector_perfil/',universales.crear_vector_perfil,name='crear_vector_perfil'),
     path('actualizar-direccion/', universales.actualizar_direccion, name="actualizar_direccion"),
+    path('vector_genero_plataforma/', universales.vector_genero_plataforma, name="vector_genero_plataforma"),
 ]
 
 if settings.ADMIN_ENABLED is True:
