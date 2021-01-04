@@ -204,13 +204,14 @@ def generar_tf_idf(request):
 
 
 def crear_vector_perfil(request):
-    from gamehouse.algorithms.caracteristicas import calcular_cpus
+    from gamehouse.algorithms.caracteristicas import calcular_vec_usuario
     jugadores = Jugador.objects.exclude(opiniones=None)
     for gamer in jugadores:
         juegos = gamer.opiniones.filter(gusto__gte=6).order_by('puntaje_total').values_list('juego',flat=True).distinct()
         juegos = juegos.reverse()
         if juegos:
             perfil_usuario=calcular_vec_usuario(juegos,gamer)
+            print("El perfilon",perfil_usuario)
 
 
     perfil_pesos=[]
@@ -223,7 +224,6 @@ def vector_genero_plataforma(request):
         newps=[]
         genres=""
         platforms=""
-        print(game.titulo)
         for gen in game.generos.all():
             new.append(gen.nombre)
         new=list(dict.fromkeys(new))#Delete duplicates
@@ -251,8 +251,10 @@ import nltk
 from nltk.probability import FreqDist
 def contar_caracteristicas(request):
   from gamehouse.algorithms.caracteristicas import calcular_caracteristicas
+  
   jugadores = Jugador.objects.all()
   for gamer in jugadores:
+    gametemp=[]
     generos_favoritos = gamer.generos.all()
     plataformas_favoritas = gamer.plataformas.all()
     carcde= CDE.objects.get(jugador=gamer)
@@ -262,42 +264,36 @@ def contar_caracteristicas(request):
     caracteristicaDE = [carcde.cde0,carcde.cde1,carcde.cde2,carcde.cde3,carcde.cde4,carcde.cde5,carcde.cde6,carcde.cde7,carcde.cde8,carcde.cde9]
     caracteristicaPU = [carcpu.cpu0,carcpu.cpu1,carcpu.cpu2,carcpu.cpu3,carcpu.cpu4,carcpu.cpu5,carcpu.cpu6,carcpu.cpu7,carcpu.cpu8,carcpu.cpu9]
     for genero in generos_favoritos:
-      print("Generos")
       juegos_genero = Juego.objects.filter(generos = genero)      
       if len(juegos_genero) > 20:#Elije los primeros 20
         juegos_genero = juegos_genero[:20]
       for juego in juegos_genero:
+        gametemp.append(juego.id_juego)             
+    for plataforma in plataformas_favoritas:
+      juegos_genero = Juego.objects.filter(plataformas = plataforma)
+      if len(juegos_genero) > 20:#Elije los primeros 20
+        juegos_genero = juegos_genero[:20]
+      for juego in juegos_genero:                
+        gametemp.append(juego.id_juego)
+
+    gametemp=list(dict.fromkeys(gametemp))
+    gametemp.sort()
+    for namegame in gametemp:
+        game= Juego.objects.get(id_juego = namegame)
         cpus=""
         cdes=""
-        descripcion_limpia = juego.descripcion_limpia
+        descripcion_limpia = game.descripcion_limpia
         listDescripcion = list(descripcion_limpia.split(" "))     
         freGen = FreqDist(listDescripcion)
         cdes=calcular_caracteristicas(caracteristicaDE,freGen)
         cpus=calcular_caracteristicas(caracteristicaPU,freGen)
         tabla_gen = Vector_Caracteristicas()
         tabla_gen.jugador = gamer
-        tabla_gen.juego=juego
+        tabla_gen.juego=game
         tabla_gen.cpus=cpus
         tabla_gen.cdes=cdes
-        tabla_gen.save()                                 
-    for plataforma in plataformas_favoritas:
-      juegos_genero = Juego.objects.filter(plataformas = plataforma)
-      if len(juegos_genero) > 20:#Elije los primeros 20
-        juegos_genero = juegos_genero[:20]
-      for juego in juegos_genero:                
-        cpus=""
-        cdes=""
-        descripcion_limpia = juego.descripcion_limpia
-        listDescripcion = list(descripcion_limpia.split(" "))     
-        frePla = FreqDist(listDescripcion)
-        cdes = calcular_caracteristicas(caracteristicaDE,frePla)
-        cpus = calcular_caracteristicas(caracteristicaPU,frePla)
-        tabla_pla = Vector_Caracteristicas()
-        tabla_pla.jugador = gamer
-        tabla_pla.juego=juego
-        tabla_pla.cpus=cpus
-        tabla_pla.cdes=cdes
-        tabla_pla.save()            
+        tabla_gen.save() 
+
   return redirect('/algoritmos/')
 
 def actualizar_direccion(request):

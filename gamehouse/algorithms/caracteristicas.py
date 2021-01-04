@@ -1,7 +1,7 @@
 #https://medium.com/@wenxuan0923/feature-extraction-from-text-using-countvectorizer-tfidfvectorizer-9f74f38f86cc
 import nltk
 import random
-from gamehouse.sjug.models import Juego
+from gamehouse.sjug.models import Juego,Vector_Caracteristicas,ListGeneros
 
 def calcular_cpus(juegos):
     """ Esta funcion recibe la lista de ids de los juegos """
@@ -51,9 +51,7 @@ def calcular_cpus(juegos):
 
 def calcular_caracteristicas(caracteristicas,frecuencia):
     cpus=""
-    listtemp=[]
-    print("Número caracteristicas")
-    print(len(caracteristicas))
+    listtemp=[]    
     for cde in caracteristicas:
         listtemp.append(frecuencia[cde])
     cpus=','.join(str(x) for x in listtemp)
@@ -68,13 +66,16 @@ def calcular_vec_usuario(juegos,gamer):
     listcdes=[]
     i=0
     for game in  juegos:
-        vector=Vector_Caracteristicas.objects.get(jugador=gamer,juego=game.titulo)
-        Gen_Pla=ListGeneros.objects.get(jugador=gamer, juego=game.titulo)
+        print("Juego",game)
+        print("Juego")
+        ###Cannot resolve keyword 'jugador' into field. Choices are: id, juego, juego_id, listgenero, listplataforma
+        vector=Vector_Caracteristicas.objects.filter(jugador=gamer,juego=game)
+        Gen_Pla=ListGeneros.objects.filter(jugador=gamer, juego=game)
         #Get elements from every game of user
-        cpus=vector.cpus
-        cdes=vector.cdes
-        genes=Gen_Pla.listgenero
-        platas=Gen_Pla.listplataforma
+        cpus=vector[0].cpus
+        cdes=vector[0].cdes
+        genes=Gen_Pla[0].listgenero
+        platas=Gen_Pla[0].listplataforma
         #Get a list of elements
         cpus=cpus.split(',')
         cdes=cdes.split(',')
@@ -96,9 +97,6 @@ def calcular_vec_usuario(juegos,gamer):
     perfil_usuario.append(np.average(pla, axis=0))
     perfil_usuario.append(np.average(ccpu, axis=0))
     perfil_usuario.append(np.average(ccde, axis=0))
-
-        
-        pass
     #perfil_usuario=/i
     return perfil_usuario
 
