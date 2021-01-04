@@ -58,3 +58,11 @@ def calcular_caracteristicas(caracteristicas,frecuencia):
         listtemp.append(frecuencia[cde])
     cpus=','.join(str(x) for x in listtemp)
     return cpus
+
+def calcular_vec_usuario(juegos):
+    perfil_usuario=[]
+    for game in  juegos:
+        game_favorite=Vector_Caracteristicas.objects.filter(juego=game.titulo)
+        pass
+    return perfil_usuario
+

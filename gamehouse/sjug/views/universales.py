@@ -202,6 +202,21 @@ def generar_tf_idf(request):
             recomendaciones.append(recomendacion)
     return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'recomendaciones':recomendaciones})
 
+
+def crear_vector_perfil(request):
+    from gamehouse.algorithms.caracteristicas import calcular_cpus
+    jugadores = Jugador.objects.exclude(opiniones=None)
+    for jugador in jugadores:
+        juegos = jugador.opiniones.filter(gusto__gte=6).order_by('puntaje_total').values_list('juego',flat=True).distinct()
+        juegos = juegos.reverse()
+        if juegos:
+            perfil_usuario=calcular_vec_usuario(juegos)
+
+
+    perfil_pesos=[]
+    return redirect('/algoritmos/') 
+
+
 import nltk
 from nltk.probability import FreqDist
 def contar_caracteristicas(request):
