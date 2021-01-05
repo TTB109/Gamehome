@@ -43,6 +43,7 @@ urlpatterns = [
     path('crear_vector_perfil/',universales.crear_vector_perfil,name='crear_vector_perfil'),
     path('actualizar-direccion/', universales.actualizar_direccion, name="actualizar_direccion"),
     path('vector_genero_plataforma/', universales.vector_genero_plataforma, name="vector_genero_plataforma"),
+    path('recomendacion-genero/', universales.generar_rec_genero, name="generar_rec_genero"),
 ]
 
 if settings.ADMIN_ENABLED is True:

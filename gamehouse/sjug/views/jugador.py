@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404,HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404, redirect
-from gamehouse.sjug.models import Jugador,Usuario,Juego,Imagen,CDE,Opinion
+from gamehouse.sjug.models import Jugador,Usuario,Juego,Imagen,CDE,Opinion,Recomendacion,Lista
 from gamehouse.sjug.forms import UserForm,UsuarioForm,JugadorForm,MisGustosForm,CdeForm
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -249,16 +249,21 @@ def mis_opiniones(request, jugador):
 
 def recomendacion(request,jugador):
     try:
-        solicitado = Jugador.objects.get(nickname = jugador)        
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
         return render(request,'jugador/recomendacion/Recomendacion.html',{'jugador':solicitado})
     except Jugador.DoesNotExist:
         return redirect('error_404')
 
 def recomendacion_descripcion(request,jugador):
     try:
-        jugador = Jugador.objects.get(nickname = jugador)
-        
-        return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html')
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        recomendacion = Recomendacion.objects.filter(jugador = solicitado, tipo = 'Descripción').first()
+        listas = Lista.objects.filter(recomendacion = recomendacion)
+        return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'listas':listas})
     except Jugador.DoesNotExist:
         return redirect('error_404')
 

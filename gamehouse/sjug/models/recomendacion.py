@@ -9,9 +9,9 @@ from .jugador import Jugador
 
 class Recomendacion(models.Model):
     id_recomendacion = models.AutoField(primary_key=True)
-    titulo = models.CharField(
+    tipo = models.CharField(
         max_length=30,
-        verbose_name="El de esta version de recomendacion")
+        verbose_name="Tipo de recomendación")
     jugador = models.ForeignKey(Jugador,
                                 on_delete=models.CASCADE,
                                 to_field='nickname',
@@ -19,11 +19,6 @@ class Recomendacion(models.Model):
                                 db_column='jugador',
                                 verbose_name='Jugador al que se le hace esta recomendacion',
                                 )
-    tipo = models.CharField(
-        null=False,
-        max_length=30,
-        verbose_name="Tipo de recomendación"
-    )
     # Calificacion del usuario del 1 al 10 indicando que tanto le gusto este
     # conjunto de listas
     retroalimentacion = models.PositiveIntegerField(default=1, null = True , 
@@ -38,8 +33,10 @@ class Lista(models.Model):
     titulo = models.CharField(
         max_length=50,
         verbose_name="El nombre de la lista")
-    juego = models.ManyToManyField(
+    
+    juegos = models.ManyToManyField(
         Juego, verbose_name="Juegos que conforman esta lista")
+    
     recomendacion = models.ForeignKey(Recomendacion,
                                       on_delete=models.CASCADE,
                                       related_name='listas',
@@ -50,7 +47,7 @@ class Lista(models.Model):
         blank=True,
         null=True,
         verbose_name="Descripcion detallada de la lista si existe")
-
+    "Juegos que se parecen a DOOM 64"
 
 # Ejemplo de modelado Muchos a muchos
 """

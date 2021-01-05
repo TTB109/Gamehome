@@ -15,7 +15,7 @@ class Usuario(models.Model):
     apellido = models.CharField(max_length=256)
     correo = models.EmailField(help_text="ejemplo: usuario@mail.com",)
     fec_nac = models.DateField(help_text="Use el formato:Mes/Dia/Año", default=date.today)
-
+    
     def __str__(self):
         return '%s, %s' % (self.nombre, self.correo)
 
@@ -49,7 +49,14 @@ class Jugador(models.Model):
         null=False,
         max_length=30,
         verbose_name="Nickname del usuario")
-
+    vector_perfil = models.CharField(max_length=70,
+                                     verbose_name="Vector de perfil del usuario",
+                                     null=True, 
+                                    )
+    vector_pesos = models.CharField(max_length=70,
+                                     verbose_name="Vector de pesos del usuario",
+                                     null=True, 
+                                    )
     def __str__(self):
         return self.nickname
 
@@ -265,3 +272,10 @@ class Vector_Caracteristicas(models.Model):
                               )
     cpus = models.CharField(max_length=100)
     cdes = models.CharField(max_length=100)
+    def __str__(self):
+        datos = 'Vector del jugador %s, acerca del juego %s(%d).\n' % (self.jugador.nickname, self.juego.titulo,self.juego.id_juego) 
+        vec_cpu = 'Vector CPU:%s.\n' % (self.cpus)
+        vec_cde = 'Vector CDE:%s.\n' % (self.cdes)
+        return  datos + vec_cpu + vec_cde
+    
+    

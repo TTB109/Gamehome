@@ -101,12 +101,12 @@ padding: 0 8px;
 <div class="row">
     <div class="col-3"></div>
     <div class="col-12">
-    {%for favorito,recomendacion in recomendaciones %}
+    {%for lista in listas %}
         <ul class="cbp-rfgrid">
-        <p style = "color:black;">Juegos similares a {{favorito}} </p>
+        <p style = "color:black;"> {{lista.descripcion}} </p>
         <div class="row">
-      	    {%for similar,puntaje in recomendacion %}      		  
-      		    <li><a href="{% url 'ver_juego' similar.id_juego%}"><img src='https://www.mobygames.com/images/covers/s/392832-that-trivia-game-playstation-4-front-cover.jpg' width="520" height="180" ></img><div><strong>{{similar.titulo}}</strong></div></a></li>		 
+      	    {%for juego in lista.juegos.all %}      		  
+      		    <li><a href="{% url 'ver_juego' juego.id_juego%}"><img src='https://www.mobygames.com/images/covers/s/392832-that-trivia-game-playstation-4-front-cover.jpg' width="520" height="180" ></img><div><strong>{{juego.titulo}}</strong></div></a></li>		 
             {%endfor%}
         </div>
         {%endfor%}

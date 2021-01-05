@@ -219,8 +219,6 @@ def ex_tf_idf(corpus):
     
     return tf_idf_vectors
     
-
-
 ##https://chartio.com/resources/tutorials/how-to-filter-for-empty-or-null-values-in-a-django-queryset/
 ##https://kavita-ganesan.com/tfidftransformer-tfidfvectorizer-usage-differences/
 def im_tf_idf(corpus):
@@ -255,6 +253,7 @@ def im_tf_idf(corpus):
 
 """ FUNCION DE RECOMENDACION """
 def recomendar_tf_idf(game,generos):
+    from gamehouse.sjug.models import Imagen
     from gamehouse.sadm.models import Tf_Idf
     from django.conf import settings
     from pickle import load
@@ -262,7 +261,7 @@ def recomendar_tf_idf(game,generos):
     vector_favorito = load(dt)
     dt.close()
     #juego = game.juego
-    recomendacion = []
+    juego_puntaje = []
     for genero in generos:
         juegos = []
         numero_juegos = genero.juego_set.all().count()
@@ -272,16 +271,20 @@ def recomendar_tf_idf(game,generos):
         randomList = random.sample(range(0, numero_juegos), muestreo)
         for indice in randomList:
             juegos.append(genero.juego_set.all()[indice])
-            
         for juego in juegos:
             ruta = Tf_Idf.objects.get(juego = juego)
             dt = open(ruta.vector, 'rb')
             vector_juego = load(dt)
             dt.close()
             similitud = similitud_coseno(vector_favorito, vector_juego)
-            recomendacion.append( (juego,similitud) )
-    recomendacion.sort(key=lambda x: x[1], reverse=True)
-    return recomendacion 
+            juego_puntaje.append( (juego,similitud) )
+    juego_puntaje.sort(key=lambda x: x[1], reverse=True)
+    juego_puntaje = juego_puntaje[:15]
+    recomendacion = []
+    for pair in juego_puntaje:
+        recomendacion.append(pair[0])
+    return recomendacion
+
 
 def similitud_coseno(vec_1,vec_2):
     coseno = np.dot(vec_1,vec_2) / \

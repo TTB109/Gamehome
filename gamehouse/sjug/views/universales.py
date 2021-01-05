@@ -4,8 +4,8 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from gamehouse.sadm.models import Administrador,Tf_Idf
 from django.shortcuts import redirect,render
-from gamehouse.sjug.forms import UserForm,JugadorForm,UsuarioForm,OpinionForm
-from gamehouse.sjug.models import Jugador, Usuario,Imagen,Juego,Opinion,CPU,CDE,Vector_Caracteristicas,ListGeneros
+from gamehouse.sjug.forms import UserForm,JugadorForm,UsuarioForm
+from gamehouse.sjug.models import Jugador,Recomendacion,Lista,Juego,CPU,CDE,Vector_Caracteristicas,ListGeneros
 from django.http import Http404
 from pickle import NONE
 
@@ -183,11 +183,13 @@ def obtener_cpus(request):
 def generar_tf_idf(request):
     from gamehouse.algorithms.tf_idf import recomendar_tf_idf
     from gamehouse.sadm.models import Tf_Idf
+    from datetime import date
+    today = date.today()
     jugadores = Jugador.objects.exclude(juegos_favoritos=None)
     """  [(DOOM 64, [(COD,0.),(),()] ),( ),( )]"""
     recomendaciones = []
     for jugador in jugadores:
-        favoritos = jugador.juegos_favoritos.all() #.values_list('uego',flat=True) #.distinct()
+        favoritos = jugador.juegos_favoritos.all()
         print(jugador)
         print("Tiene los siguientes juegos favoritos:")
         print(favoritos)
@@ -196,25 +198,42 @@ def generar_tf_idf(request):
             generos.update(favorito.juego.generos.all())
         generos = list(generos)
         #recomendaciones = []
+        recomendacion = Recomendacion(tipo = 'Descripción', jugador = jugador)
+        recomendacion.save()
         for favorito in favoritos:
             pos = Tf_Idf.objects.get(juego = favorito.juego)
-            recomendacion = (favorito.juego,recomendar_tf_idf(pos,generos))
-            recomendaciones.append(recomendacion)
-    return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'recomendaciones':recomendaciones})
-
+            generada = recomendar_tf_idf(pos,generos)
+            lista_recomendacion = Lista(recomendacion = recomendacion, 
+                                        descripcion = "Juegos que se parecen a "+favorito.juego.titulo )
+            lista_recomendacion.titulo = jugador.nickname+'_'+ today.strftime("%d_%m_%Y")
+            lista_recomendacion.save()
+            lista_recomendacion.juegos.add(*generada)
+            lista_recomendacion.save()
+    return redirect('/algoritmos/')
 
 def crear_vector_perfil(request):
-    from gamehouse.algorithms.caracteristicas import calcular_vec_usuario
+    from gamehouse.algorithms.caracteristicas import calcular_vec_usuario,recomendacion_genero
     jugadores = Jugador.objects.exclude(opiniones=None)
     for gamer in jugadores:
         juegos = gamer.opiniones.filter(gusto__gte=6).order_by('puntaje_total').values_list('juego',flat=True).distinct()
         juegos = juegos.reverse()
         if juegos:
-            perfil_usuario=calcular_vec_usuario(juegos,gamer)
-            print("El perfilon",perfil_usuario)
-
-
+            gamer.vector_perfil = calcular_vec_usuario(juegos,gamer)
+            gamer.save()
     perfil_pesos=[]
+    return redirect('/algoritmos/')
+
+def generar_rec_genero(request):
+    from gamehouse.algorithms.caracteristicas import recomendacion_genero
+    jugadores = Jugador.objects.exclude(opiniones=None)
+    for jugador in jugadores:
+        generos_favoritos = jugador.generos.all()
+        for genero_favorito in generos_favoritos:  
+            print(genero_favorito)
+            print(genero_favorito.nombre)
+            recomendacion = recomendacion_genero(jugador,genero_favorito)
+            print("Lista de recomendacion para genero:",genero_favorito.nombre)
+            print(recomendacion)
     return redirect('/algoritmos/')
 
 def vector_genero_plataforma(request):
@@ -292,15 +311,14 @@ def contar_caracteristicas(request):
         descripcion_limpia = game.descripcion_limpia
         listDescripcion = list(descripcion_limpia.split(" "))     
         freGen = FreqDist(listDescripcion)
-        cdes=calcular_caracteristicas(caracteristicaDE,freGen)
-        cpus=calcular_caracteristicas(caracteristicaPU,freGen)
+        cdes = calcular_caracteristicas(caracteristicaDE,freGen)
+        cpus = calcular_caracteristicas(caracteristicaPU,freGen)
         tabla_gen = Vector_Caracteristicas()
         tabla_gen.jugador = gamer
         tabla_gen.juego=game
         tabla_gen.cpus=cpus
         tabla_gen.cdes=cdes
         tabla_gen.save() 
-
   return redirect('/algoritmos/')
 
 def actualizar_direccion(request):

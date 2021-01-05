@@ -2,6 +2,7 @@
 import nltk
 import random
 from gamehouse.sjug.models import Juego,Vector_Caracteristicas,ListGeneros
+from gamehouse.algorithms.tf_idf import similitud_coseno
 
 def calcular_cpus(juegos):
     """ Esta funcion recibe la lista de ids de los juegos """
@@ -67,17 +68,16 @@ def calcular_vec_usuario(juegos,gamer):
     i=0
     for game in  juegos:
         print("Juego",game)
-        
         Gen_Pla=ListGeneros.objects.get(juego=game)
-        vector=Vector_Caracteristicas.objects.filter(jugador=gamer,juego=game)
+        vector = Vector_Caracteristicas.objects.filter(jugador=gamer,juego=game)
         #print("Genero",Gen_Pla.juego)
-      
         for vec in vector:
           print("Vec",vec.juego)
-          cpus=vec.cpus
-          cdes=vec.cdes
-          cpus=cpus.split(',')
-          cdes=cdes.split(',')
+          cpus = vec.cpus
+          cdes = vec.cdes
+          cpus = cpus.split(',')
+          cdes = cdes.split(',')
+          
           listcpu.append(cpus)
           listcdes.append(cdes)
         #Get elements from every game of user
@@ -90,45 +90,39 @@ def calcular_vec_usuario(juegos,gamer):
         listgeneros.append(genes)
         listplataformas.append(platas)
 
+
+    #https://stackoverflow.com/questions/29661574/normalize-numpy-array-columns-in-python
     #Change type to Array
     gen = np.array(listgeneros).astype(np.float)
     pla = np.array(listplataformas).astype(np.float)
     ccpu = np.array(listcpu).astype(np.float)
     ccde = np.array(listcdes).astype(np.float)
+    #Normalize
+    gen = gen / gen.max(axis=0)
+    pla = pla / pla.max(axis=0)
+    ccpu = ccpu / ccpu.max(axis=0)
+    ccde = ccde / ccde.max(axis=0)
+    #Avoid division by zero
+    gen[np.isnan(gen) | np.isinf(gen)] = 0
+    pla[np.isnan(pla) | np.isinf(pla)] = 0
+    ccpu[np.isnan(ccpu) | np.isinf(ccpu)] = 0
+    ccde[np.isnan(ccde) | np.isinf(ccde)] = 0
+    
     #Calculate de Mean
     #Sort   Genero,Plataforma,CPU,CDE
-    perfil_usuario.append(np.average(gen, axis=0))
-    perfil_usuario.append(np.average(pla, axis=0))
-    perfil_usuario.append(np.average(ccpu, axis=0))
-    perfil_usuario.append(np.average(ccde, axis=0))
-    return perfil_usuario
-
-        #Get elements from every game of user
-    #     cpus=vector.cpus
-    #     cdes=vector.cdes
-    #     genes=Gen_Pla.listgenero
-    #     platas=Gen_Pla.listplataforma
-    #     #Get a list of elements
-    #     cpus=cpus.split(',')
-    #     cdes=cdes.split(',')
-    #     platas=platas.split(',')
-    #     genes=genes.split(',')
-    #     #append in one list
-    #     listgeneros.append(genes)
-    #     listplataformas.append(platas)
-    #     listcpu.append(cpus)
-    #     listcdes.append(cdes)
-    # #Change type to Array
-    # gen = np.array(listgeneros)
-    # pla = np.array(listplataformas)
-    # ccpu = np.array(listcpu)
-    # ccde = np.array(listcdes)
-    # #Calculate de Mean
-    # #Sort   Genero,Plataforma,CPU,CDE
-    # perfil_usuario.append(np.average(gen, axis=0))
-    # perfil_usuario.append(np.average(pla, axis=0))
-    # perfil_usuario.append(np.average(ccpu, axis=0))
-    # perfil_usuario.append(np.average(ccde, axis=0))
+    gen = np.average(gen, axis=0)
+    pla = np.average(pla, axis=0)
+    ccpu = np.average(ccpu, axis=0)
+    ccde = np.average(ccde, axis=0)
+    vector_perfil = np.concatenate([gen,
+                                    pla,
+                                    ccpu,
+                                    ccde
+                                    ])
+    vector_perfil = [ str(number) for number in vector_perfil]
+    print(vector_perfil)
+    vector_perfil = ','.join(vector_perfil)
+    return vector_perfil
 
 
 def CountGen(generos):
@@ -167,4 +161,61 @@ def CountPlat(plataformas):
     else:
       listplataformas.append(uno)
   return listplataformas
+
+def obtener_vector(gamer,juego):
+    gen_plat= ListGeneros.objects.get(juego = juego) 
+    vector = gen_plat.listgenero + gen_plat.listplataforma
+    vector = vector.split(",")
+    obtenido = Vector_Caracteristicas.objects.get(jugador = gamer,juego = juego)
+    return 
+    
+def recomendacion_genero(jugador,genero):
+    vectores = Vector_Caracteristicas.objects.filter(jugador = jugador) 
+    recomendacion = []
+    print("Filtrando para el genero:",genero)
+    print("Todos:",len(vectores))
+    vector_perfil = (jugador.vector_perfil).split(',')
+    vector_perfil = np.array(vector_perfil).astype(np.float)
+    for vector in vectores:
+        if genero in vector.juego.generos.all():
+            vector_videojuego = ListGeneros.objects.get(juego = vector.juego)
+            vector_videojuego = vector_videojuego.listgenero + ',' + vector_videojuego.listplataforma
+            vector_videojuego = vector_videojuego + ',' + vector.cpus + ','+ vector.cdes
+            vector_videojuego = vector_videojuego.split(',') 
+            vector_videojuego = np.array(vector_videojuego).astype(np.float)
+            similitud = similitud_coseno(vector_perfil,vector_videojuego)
+            recomendacion.append( (vector.juego,similitud) )
+    recomendacion.sort(key=lambda x: x[1], reverse=True)
+    return recomendacion
+
+    """
+    0.2,0.1,0.333
+    -> cpu0,cpu1,
+    -> 30, 20 , 1,2,0,
+    for genero in generos:
+        juegos = []
+        numero_juegos = genero.juego_set.all().count()
+        muestreo = 20
+        if numero_juegos < 20:
+            muestreo = numero_juegos
+        randomList = random.sample(range(0, numero_juegos), muestreo)
+        for indice in randomList:
+            juegos.append(genero.juego_set.all()[indice])
+        for juego in juegos:
+            vector_juego = obtener_vector(gamer,juego)
+            
+            ruta = Tf_Idf.objects.get(juego = juego)
+            dt = open(ruta.vector, 'rb')
+            vector_juego = load(dt)
+            dt.close()
+            similitud = similitud_coseno(vector_favorito, vector_juego)
+            juego_puntaje.append( (juego,similitud) )
+    juego_puntaje.sort(key=lambda x: x[1], reverse=True)
+    juego_imagen = []
+    for par in juego_puntaje:
+        tupla = (par[0],Imagen.objects.get(juego = par[0]))
+        juego_imagen.append(tupla)
+   
+    return juego_imagen
+    """
 
