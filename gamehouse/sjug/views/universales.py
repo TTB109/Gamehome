@@ -257,6 +257,7 @@ def contar_caracteristicas(request):
     gametemp=[]
     generos_favoritos = gamer.generos.all()
     plataformas_favoritas = gamer.plataformas.all()
+    juegos_favoritos= gamer.opiniones.filter(jugador=gamer ,gusto__gte=6).order_by('puntaje_total').values_list('juego',flat=True).distinct()  
     carcde= CDE.objects.get(jugador=gamer)
     carcpu= CPU.objects.get(jugador=4)
     #carcpu= CPU.objects.get(jugador=4)
@@ -275,9 +276,15 @@ def contar_caracteristicas(request):
         juegos_genero = juegos_genero[:20]
       for juego in juegos_genero:                
         gametemp.append(juego.id_juego)
+    for play in juegos_favoritos:
+      juegos_genero = Juego.objects.filter(id_juego = play)
+      for juego in juegos_genero:            
+        gametemp.append(juego.id_juego)
 
     gametemp=list(dict.fromkeys(gametemp))
     gametemp.sort()
+    print("Jugador",gamer)
+    print("Juego",gametemp)
     for namegame in gametemp:
         game= Juego.objects.get(id_juego = namegame)
         cpus=""

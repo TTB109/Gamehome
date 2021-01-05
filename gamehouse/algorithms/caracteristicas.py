@@ -67,38 +67,68 @@ def calcular_vec_usuario(juegos,gamer):
     i=0
     for game in  juegos:
         print("Juego",game)
-        print("Juego")
-        ###Cannot resolve keyword 'jugador' into field. Choices are: id, juego, juego_id, listgenero, listplataforma
+        
+        Gen_Pla=ListGeneros.objects.get(juego=game)
         vector=Vector_Caracteristicas.objects.filter(jugador=gamer,juego=game)
-        Gen_Pla=ListGeneros.objects.filter(jugador=gamer, juego=game)
+        #print("Genero",Gen_Pla.juego)
+      
+        for vec in vector:
+          print("Vec",vec.juego)
+          cpus=vec.cpus
+          cdes=vec.cdes
+          cpus=cpus.split(',')
+          cdes=cdes.split(',')
+          listcpu.append(cpus)
+          listcdes.append(cdes)
         #Get elements from every game of user
-        cpus=vector[0].cpus
-        cdes=vector[0].cdes
-        genes=Gen_Pla[0].listgenero
-        platas=Gen_Pla[0].listplataforma
+        genes=Gen_Pla.listgenero
+        platas=Gen_Pla.listplataforma
         #Get a list of elements
-        cpus=cpus.split(',')
-        cdes=cdes.split(',')
         platas=platas.split(',')
         genes=genes.split(',')
         #append in one list
         listgeneros.append(genes)
         listplataformas.append(platas)
-        listcpu.append(cpus)
-        listcdes.append(cdes)
+
     #Change type to Array
-    gen = np.array(listgeneros)
-    pla = np.array(listplataformas)
-    ccpu = np.array(listcpu)
-    ccde = np.array(listcdes)
+    gen = np.array(listgeneros).astype(np.float)
+    pla = np.array(listplataformas).astype(np.float)
+    ccpu = np.array(listcpu).astype(np.float)
+    ccde = np.array(listcdes).astype(np.float)
     #Calculate de Mean
     #Sort   Genero,Plataforma,CPU,CDE
     perfil_usuario.append(np.average(gen, axis=0))
     perfil_usuario.append(np.average(pla, axis=0))
     perfil_usuario.append(np.average(ccpu, axis=0))
     perfil_usuario.append(np.average(ccde, axis=0))
-    #perfil_usuario=/i
     return perfil_usuario
+
+        #Get elements from every game of user
+    #     cpus=vector.cpus
+    #     cdes=vector.cdes
+    #     genes=Gen_Pla.listgenero
+    #     platas=Gen_Pla.listplataforma
+    #     #Get a list of elements
+    #     cpus=cpus.split(',')
+    #     cdes=cdes.split(',')
+    #     platas=platas.split(',')
+    #     genes=genes.split(',')
+    #     #append in one list
+    #     listgeneros.append(genes)
+    #     listplataformas.append(platas)
+    #     listcpu.append(cpus)
+    #     listcdes.append(cdes)
+    # #Change type to Array
+    # gen = np.array(listgeneros)
+    # pla = np.array(listplataformas)
+    # ccpu = np.array(listcpu)
+    # ccde = np.array(listcdes)
+    # #Calculate de Mean
+    # #Sort   Genero,Plataforma,CPU,CDE
+    # perfil_usuario.append(np.average(gen, axis=0))
+    # perfil_usuario.append(np.average(pla, axis=0))
+    # perfil_usuario.append(np.average(ccpu, axis=0))
+    # perfil_usuario.append(np.average(ccde, axis=0))
 
 
 def CountGen(generos):
