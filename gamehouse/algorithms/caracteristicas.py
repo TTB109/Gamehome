@@ -58,6 +58,10 @@ def calcular_caracteristicas(caracteristicas,frecuencia):
     cpus=','.join(str(x) for x in listtemp)
     return cpus
 
+def change_str(vector_car):
+    cpus=','.join(str(x) for x in listtemp)
+    return cpus
+
 import numpy as np
 def calcular_vec_usuario(juegos,gamer):
     perfil_usuario=[]
@@ -171,7 +175,7 @@ def obtener_vector(gamer,juego):
     
 def recomendacion_genero(jugador,genero):
     vectores = Vector_Caracteristicas.objects.filter(jugador = jugador) 
-    recomendacion = []
+    lista_genero = []
     print("Filtrando para el genero:",genero)
     print("Todos:",len(vectores))
     vector_perfil = (jugador.vector_perfil).split(',')
@@ -184,8 +188,37 @@ def recomendacion_genero(jugador,genero):
             vector_videojuego = vector_videojuego.split(',') 
             vector_videojuego = np.array(vector_videojuego).astype(np.float)
             similitud = similitud_coseno(vector_perfil,vector_videojuego)
-            recomendacion.append( (vector.juego,similitud) )
-    recomendacion.sort(key=lambda x: x[1], reverse=True)
+            lista_genero.append( (vector.juego,similitud) )
+    lista_genero = list(set(lista_genero))
+    lista_genero.sort(key=lambda x: x[1], reverse=True)
+    lista_genero = lista_genero[:15]
+    recomendacion = []
+    for pair in lista_genero:
+        recomendacion.append(pair[0])
+    return recomendacion
+
+def recomendacion_plataforma(jugador,plataforma):
+    vectores = Vector_Caracteristicas.objects.filter(jugador = jugador) 
+    lista_plataforma = []
+    print("Filtrando para la plataforma:",plataforma)
+    print("Todos:",len(vectores))
+    vector_perfil = (jugador.vector_perfil).split(',')
+    vector_perfil = np.array(vector_perfil).astype(np.float)
+    for vector in vectores:
+        if plataforma in vector.juego.plataformas.all():
+            vector_videojuego = ListGeneros.objects.get(juego = vector.juego)
+            vector_videojuego = vector_videojuego.listgenero + ',' + vector_videojuego.listplataforma
+            vector_videojuego = vector_videojuego + ',' + vector.cpus + ','+ vector.cdes
+            vector_videojuego = vector_videojuego.split(',') 
+            vector_videojuego = np.array(vector_videojuego).astype(np.float)
+            similitud = similitud_coseno(vector_perfil,vector_videojuego)
+            lista_plataforma.append( (vector.juego,similitud) )
+    lista_plataforma= list(set(lista_plataforma))
+    lista_plataforma.sort(key=lambda x: x[1], reverse=True)
+    lista_plataforma = lista_plataforma[:15]
+    recomendacion = []
+    for pair in lista_plataforma:
+        recomendacion.append(pair[0])
     return recomendacion
 
     """

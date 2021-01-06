@@ -5,9 +5,12 @@ from django.contrib.auth.decorators import login_required
 from gamehouse.sadm.models import Administrador,Tf_Idf
 from django.shortcuts import redirect,render
 from gamehouse.sjug.forms import UserForm,JugadorForm,UsuarioForm
-from gamehouse.sjug.models import Jugador,Recomendacion,Lista,Juego,CPU,CDE,Vector_Caracteristicas,ListGeneros
+from gamehouse.sjug.models import Jugador,Recomendacion,Lista,Juego,CPU,CDE,Vector_Caracteristicas,ListGeneros,\
+    jugador
 from django.http import Http404
 from pickle import NONE
+from gamehouse.algorithms.caracteristicas import recomendacion_plataforma
+
 
 """
 PENDIENTES:
@@ -67,6 +70,10 @@ def registro(request):
             usuario = usuario_form.save()
             jugador = jugador_form.save(commit = False)
             jugador.id_jugador = usuario.id_usuario
+            #genero=user_form.cleaned_data['generos']
+            #plataforma=user_form.cleaned_data['plataformas']
+            #jugador.juegos.add(*genero)
+            #jugador.juegos.add(*plataforma)
             jugador.save()
             user_form.save()
             username = user_form.cleaned_data['username']
@@ -149,7 +156,6 @@ def tf_idf_sk(request):
         tf_idf.save()
     return redirect('/algoritmos/')
 
-
 def obtener_cpus(request):
     from gamehouse.algorithms.caracteristicas import calcular_cpus
     # Obtener todos los jugadores que han hecho una opiniones
@@ -186,7 +192,6 @@ def generar_tf_idf(request):
     from datetime import date
     today = date.today()
     jugadores = Jugador.objects.exclude(juegos_favoritos=None)
-    """  [(DOOM 64, [(COD,0.),(),()] ),( ),( )]"""
     recomendaciones = []
     for jugador in jugadores:
         favoritos = jugador.juegos_favoritos.all()
@@ -225,16 +230,45 @@ def crear_vector_perfil(request):
 
 def generar_rec_genero(request):
     from gamehouse.algorithms.caracteristicas import recomendacion_genero
+    from datetime import date
+    today = date.today()
     jugadores = Jugador.objects.exclude(opiniones=None)
     for jugador in jugadores:
         generos_favoritos = jugador.generos.all()
-        for genero_favorito in generos_favoritos:  
-            print(genero_favorito)
-            print(genero_favorito.nombre)
-            recomendacion = recomendacion_genero(jugador,genero_favorito)
-            print("Lista de recomendacion para genero:",genero_favorito.nombre)
-            print(recomendacion)
+        recomendacion = Recomendacion(tipo = 'Genero', jugador = jugador)
+        recomendacion.save()
+        for genero_favorito in generos_favoritos:
+            recomendacion_lista = recomendacion_genero(jugador,genero_favorito)
+            lista_recomendacion = Lista(recomendacion = recomendacion, 
+                                        descripcion = "Juegos del genero "+genero_favorito.nombre+" recomendados basandonos en tu perfil")   
+            lista_recomendacion.titulo = jugador.nickname+'_'+ today.strftime("%d_%m_%Y")+'_'+genero_favorito.nombre
+            lista_recomendacion.save()
+            lista_recomendacion.juegos.add(*recomendacion_lista)
+            lista_recomendacion.save()
     return redirect('/algoritmos/')
+
+def generar_rec_plataforma(request):
+    from gamehouse.algorithms.caracteristicas import recomendacion_genero
+    from datetime import date
+    today = date.today()
+    jugadores = Jugador.objects.exclude(opiniones=None)
+    for jugador in jugadores:
+        plataformas_favoritos = jugador.plataformas.all()
+        recomendacion = Recomendacion(tipo = 'Plataforma', jugador = jugador)
+        recomendacion.save()
+        for plataforma_favorito in plataformas_favoritos:  
+            recomendacion_lista = recomendacion_plataforma(jugador,plataforma_favorito)
+            lista_recomendacion = Lista(recomendacion = recomendacion, 
+                                        descripcion = "Juegos de la plataforma "+plataforma_favorito.nombre+" recomendados basandonos en tu perfil")
+            lista_recomendacion.titulo = jugador.nickname+'_'+ today.strftime("%d_%m_%Y")+'_'+plataforma_favorito.nombre
+            lista_recomendacion.save()
+            lista_recomendacion.juegos.add(*recomendacion_lista)
+            lista_recomendacion.save()
+    return redirect('/algoritmos/')
+
+def normalizar_vectores(request):
+    return redirect('/algoritmos/')
+
 
 def vector_genero_plataforma(request):
     from gamehouse.algorithms.caracteristicas import CountGen,CountPlat

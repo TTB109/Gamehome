@@ -269,17 +269,25 @@ def recomendacion_descripcion(request,jugador):
 
 def recomendacion_genero(request,jugador):
     try:
-        jugador = Jugador.objects.get(nickname = jugador)
-        
-        return render(request,'jugador/recomendacion/Recomendacion_Genero.html')
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        recomendacion = Recomendacion.objects.filter(jugador = solicitado, tipo = 'Genero').first()
+        print(recomendacion)
+        listas = Lista.objects.filter(recomendacion = recomendacion)
+        print(listas)
+        return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'listas':listas})
     except Jugador.DoesNotExist:
         return redirect('error_404')
 
 def recomendacion_plataforma(request,jugador):
     try:
-        jugador = Jugador.objects.get(nickname = jugador)
-        
-        return render(request,'jugador/recomendacion/Recomendacion_Plataforma.html')
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        recomendacion = Recomendacion.objects.filter(jugador = solicitado, tipo = 'Plataforma').first()
+        listas = Lista.objects.filter(recomendacion = recomendacion)
+        return render(request,'jugador/recomendacion/Recomendacion_Plataforma.html',{'listas':listas})
     except Jugador.DoesNotExist:
         return redirect('error_404')
 
