@@ -87,6 +87,17 @@ a .game_imagen:hover{
       margin-bottom: 13px;
       position: relative;
 }
+
+.details_videogame span {
+      position: relative;
+      top: 3px;
+      margin-left: 12px;
+      background: #38dfa7;
+      border-radius: 5px;
+      color: #285305;
+      font-size: 16px;
+      padding: 0px 4px;      
+    }
   
 .title222 {    
       color: #C7C1BA;
@@ -291,11 +302,14 @@ input[type="checkbox"]{
          
      <div class="hero">
              
-       <div class="details_videogame">
+      <div class="details_videogame">
+        
          <div class="title222" >Videojuego:</div>        
-         <div class="title111" ><strong>{{juego.titulo}}</strong></div>
-       </div> <!-- end details_videogame -->
+         <a href="https://www.youtube.com/results?search_query=videogame+{{juego.titulo}}"><div class="title111" ><strong>{{juego.titulo}}</strong></div></a>
+         <span><a href="{% url 'agregar_videojuego' user.id juego.id_juego %}">AGREGAR VIDEOJUEGO </a></span>
+      </div> <!-- end details_videogame -->
        
+       <!--  -->
      </div> <!-- end hero -->
      
      <div class="description_videogame">

@@ -46,6 +46,12 @@ urlpatterns = [
    path('<jugador>/gusto/palabras/',login_required(sjug_jugador.mis_palabras), name = 'mis_palabras'),
       
    path('<jugador>/dashboard/',login_required(sjug_jugador.dashboard), name = 'dashboard'), ### /sjug/<jugador>/dashboard  Presentación de recomendaciones
+   path('<jugador>/recomendacion_puntuacion/',login_required(sjug_jugador.recomendacion_puntuacion), name = 'recomendacion_puntuacion'), ### /sjug/<jugador>/dashboard  Presentación de recomendaciones   
+   path('<jugador>/recomendacion_puntuacion/gusto',login_required(sjug_jugador.recomendacion_puntuacion_gusto), name = 'recomendacion_puntuacion_gusto'), ### /sjug/<jugador>/dashboard  Presentación de recomendaciones   
+   path('<jugador>/recomendacion_puntuacion/guion',login_required(sjug_jugador.recomendacion_puntuacion_guion), name = 'recomendacion_puntuacion_guion'), ### /sjug/<jugador>/dashboard  Presentación de recomendaciones   
+   path('<jugador>/recomendacion_puntuacion/arte',login_required(sjug_jugador.recomendacion_puntuacion_arte), name = 'recomendacion_puntuacion_arte'), ### /sjug/<jugador>/dashboard  Presentación de recomendaciones   
+   path('<jugador>/recomendacion_puntuacion/jugabilidad',login_required(sjug_jugador.recomendacion_puntuacion_jugabilidad), name = 'recomendacion_puntuacion_jugabilidad'), ### /sjug/<jugador>/dashboard  Presentación de recomendaciones   
+   path('<jugador>/recomendacion_puntuacion/tecnico',login_required(sjug_jugador.recomendacion_puntuacion_tecnico), name = 'recomendacion_puntuacion_tecnico'), ### /sjug/<jugador>/dashboard  Presentación de recomendaciones   
    path('<jugador>/opiniones/',sjug_jugador.mis_opiniones, name = 'mis_opiniones'),  #Ver mis opiniones de todos los juegos
    path('<jugador>/opinion/',sjug_jugador.opinion, name = 'opinion'),  #Ver mis opiniones de todos los juegos
    #path('<jugador>/opiniones/<genero>/',sjug_juego.opiniones, name = 'mis_opiniones'), ## ver opiniones de cierto genero

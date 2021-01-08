@@ -34,7 +34,7 @@
             <ul>
 	                <li><a href="{% url 'dashboard' user.get_username%}"><i class="fa fa-gamepad"></i></a></li>
                     <li><a href="{% url 'dashboard' user.get_username%}" class="menu-item">Inicio</a></li>                
-                    <li><a href="{% url 'recomendacion' user.get_username%}" class="menu-item">Recomendaciones</a></li>
+                    <li><a href="{% url 'recomendacion_puntuacion' user.get_username%}" class="menu-item">Puntuaciónes</a></li>
                     <li><a href="{% url 'logout' %}" class="menu-item">Salir</a></li>
                     <li><a href="#" id="searcher"><i class="fa fa-search"></i></a></li>
             </ul>

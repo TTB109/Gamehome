@@ -21,8 +21,7 @@ def gestion_usuarios(request,administrador):
                 posts=paginator.page(1)
             except EmptyPage:
                 posts=paginator.page(paginator.num_pages)
-            print("si se acepta")
-            print("largo ",len(dataset))
+            
             return render(request,'adm/jugadores/gestion_usuario.html',{'dataset':posts,'page':page,'administrador':solicitado})
                 
         else:

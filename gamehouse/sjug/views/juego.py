@@ -8,6 +8,7 @@ from gamehouse.sjug.models import Jugador,Usuario,Juego,Imagen,Opinion
 from gamehouse.sjug.forms import OpinionForm
 from django.http import Http404
 from gamehouse.sjug.views.jugador import juegos_random
+from django.contrib.auth.decorators import login_required
 
 def default(request):
     return render(request,'jugador/sjug.html')
@@ -61,6 +62,27 @@ def ver_juego(request,id_juego):
         return redirect('error_404')
     except Imagen.DoesNotExist:
         return redirect('error_404')
+
+@login_required()
+def agregar_videojuego(request,jugador: str, id_juego: int):
+    """ Agregar un juego escogido """
+    print("El jugador es",jugador)
+    try:
+        usuario=Usuario.objects.get(id_usuario=jugador)
+        jugador = Jugador.objects.get(usuario = usuario)
+        if request.user.get_username() != jugador.nickname:
+            return redirect('error_403')
+        try: #Intentar recuperar jugador con ese juego
+            juego = Juego.objects.get(id_juego = id_juego)
+            if request.method == 'POST':
+                jugador.juegos.add(juego)
+                return redirect('ver_juego',id_juego = juego.id_juego)
+            else:
+                return render(request,'juegos/agregar_mi_juego.html',{'juego':juego})
+        except Juego.DoesNotExist:
+            return redirect('error_404')    
+    except Jugador.DoesNotExist:
+        return redirect('error_404') 
 
 """
 def ver_juego(request,juego):

@@ -3,24 +3,35 @@
 {% block content %}
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
-*{
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: 'Poppins', sans-serif;
+
+*, *:before, *:after {
+  box-sizing: border-box;
 }
-body{
-display: flex;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
+
+body {
+  background: white;
 }
+  
+.videogame-card {
+    font: 14px/22px "Lato", Arial, sans-serif;
+    color: #A9A8A3;
+    padding: 40px 0;
+  }
+  
+.container_videogame {
+    margin: 0 auto;
+    width: 780px;
+    height: 1000px;
+    background: #F0F0ED;
+    border-radius: 5px;
+    position: relative;
+  }
 
 .cbp-rfgrid {
 margin: 90px 0 0 0;
 padding: 20px;
 list-style: none;
-position: relative;
+position: absolute;
 width: 100%;
 }
 
@@ -42,7 +53,7 @@ cursor: pointer;
 
 .cbp-rfgrid li a img {
 max-width: 100%;
-opacity: 1;
+opacity: 0;
 
 }
 
@@ -90,19 +101,22 @@ padding: 0 8px;
 </div>
 
 
-<div class="row">
+<div class="videogame-card">
+    <div class="container_videogame">
     <div class="col-3"></div>
     <div class="col-12">
     {%for lista in listas %}
         <ul class="cbp-rfgrid">
-        <p style = "color:black;"> {{lista.descripcion}} </p>
+        <p class="center-align titulo"> {{lista.descripcion}} </p>
         <div class="row">
       	    {%for juego in lista.juegos.all %}      		  
       		    <li><a href="{% url 'ver_juego' juego.id_juego%}"><img src='https://www.mobygames.com/images/covers/s/392832-that-trivia-game-playstation-4-front-cover.jpg' width="520" height="180" ></img><div><strong>{{juego.titulo}}</strong></div></a></li>		 
             {%endfor%}
         </div>
         {%endfor%}
+        {%include 'pagination.html' with page=listas%}
     </div>
+</div>
 </div>
   
 

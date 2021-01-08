@@ -243,8 +243,70 @@ def mis_opiniones(request, jugador):
         return render(request,'jugador/opiniones.html',{'fOpinion':posts,'page':page})
     except Jugador.DoesNotExist:
         return redirect('error_404')
-    
 
+def recomendacion_puntuacion(request,jugador):
+    try:
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        return render(request,'jugador/recomendacion/Recomendacion_Puntuacion_General.html',{'jugador':solicitado})
+    except Jugador.DoesNotExist:
+        return redirect('error_404')
+
+def recomendacion_puntuacion_gusto(request,jugador):
+    try:
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        juegos_favoritos= Opinion.objects.filter(gusto__gte=6).order_by('gusto')[:10]
+        juegos=lista_puntuacion(juegos_favoritos)
+        return render(request,'jugador/recomendacion/Recomendacion_Puntuacion.html',{'jugador':solicitado,'juegos_favoritos':juegos})
+    except Jugador.DoesNotExist:
+        return redirect('error_404')
+
+def recomendacion_puntuacion_guion(request,jugador):
+    try:
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        juegos_favoritos= Opinion.objects.filter(guion__gte=6).order_by('guion')[:10]
+        juegos=lista_puntuacion(juegos_favoritos)
+        return render(request,'jugador/recomendacion/Recomendacion_Puntuacion.html',{'jugador':solicitado,'juegos_favoritos':juegos})
+    except Jugador.DoesNotExist:
+        return redirect('error_404')
+
+def recomendacion_puntuacion_arte(request,jugador):
+    try:
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        juegos_favoritos= Opinion.objects.filter(artes__gte=6).order_by('artes')[:10]
+        juegos=lista_puntuacion(juegos_favoritos)
+        return render(request,'jugador/recomendacion/Recomendacion_Puntuacion.html',{'jugador':solicitado,'juegos_favoritos':juegos})
+    except Jugador.DoesNotExist:
+        return redirect('error_404')
+
+def recomendacion_puntuacion_jugabilidad(request,jugador):
+    try:
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        juegos_favoritos= Opinion.objects.filter(jugabilidad__gte=6).order_by('jugabilidad')[:10]
+        juegos=lista_puntuacion(juegos_favoritos)
+        return render(request,'jugador/recomendacion/Recomendacion_Puntuacion.html',{'jugador':solicitado,'juegos_favoritos':juegos})
+    except Jugador.DoesNotExist:
+        return redirect('error_404')
+
+def recomendacion_puntuacion_tecnico(request,jugador):
+    try:
+        solicitado = Jugador.objects.get(nickname = jugador)
+        if request.user.get_username() != solicitado.nickname:
+            return redirect('error_403')
+        juegos_favoritos= Opinion.objects.filter(tecnico__gte=6).order_by('tecnico')[:10]
+        juegos=lista_puntuacion(juegos_favoritos)
+        return render(request,'jugador/recomendacion/Recomendacion_Puntuacion.html',{'jugador':solicitado,'juegos_favoritos':juegos})
+    except Jugador.DoesNotExist:
+        return redirect('error_404')
 #  Vistas para recomendacion 
 
 def recomendacion(request,jugador):
@@ -262,8 +324,17 @@ def recomendacion_descripcion(request,jugador):
         if request.user.get_username() != solicitado.nickname:
             return redirect('error_403')
         recomendacion = Recomendacion.objects.filter(jugador = solicitado, tipo = 'Descripción').first()
-        listas = Lista.objects.filter(recomendacion = recomendacion)
-        return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'listas':listas})
+        listas = Lista.objects.filter(recomendacion = recomendacion)        
+        paginator=Paginator(listas,10)
+        page=request.GET.get('page')
+        try:
+            posts=paginator.page(page)
+        except PageNotAnInteger:
+            posts=paginator.page(1)
+        except EmptyPage:
+            posts=paginator.page(paginator.num_pages)
+
+        return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'listas':posts,'page':page,})
     except Jugador.DoesNotExist:
         return redirect('error_404')
 
@@ -272,11 +343,17 @@ def recomendacion_genero(request,jugador):
         solicitado = Jugador.objects.get(nickname = jugador)
         if request.user.get_username() != solicitado.nickname:
             return redirect('error_403')
-        recomendacion = Recomendacion.objects.filter(jugador = solicitado, tipo = 'Genero').first()
-        print(recomendacion)
+        recomendacion = Recomendacion.objects.filter(jugador = solicitado, tipo = 'Genero').first()        
         listas = Lista.objects.filter(recomendacion = recomendacion)
-        print(listas)
-        return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'listas':listas})
+        paginator=Paginator(listas,10)
+        page=request.GET.get('page')
+        try:
+            posts=paginator.page(page)
+        except PageNotAnInteger:
+            posts=paginator.page(1)
+        except EmptyPage:
+            posts=paginator.page(paginator.num_pages)
+        return render(request,'jugador/recomendacion/Recomendacion_Descripcion.html',{'listas':posts, 'page':page})
     except Jugador.DoesNotExist:
         return redirect('error_404')
 
@@ -287,7 +364,15 @@ def recomendacion_plataforma(request,jugador):
             return redirect('error_403')
         recomendacion = Recomendacion.objects.filter(jugador = solicitado, tipo = 'Plataforma').first()
         listas = Lista.objects.filter(recomendacion = recomendacion)
-        return render(request,'jugador/recomendacion/Recomendacion_Plataforma.html',{'listas':listas})
+        paginator=Paginator(listas,10)
+        page=request.GET.get('page')
+        try:
+            posts=paginator.page(page)
+        except PageNotAnInteger:
+            posts=paginator.page(1)
+        except EmptyPage:
+            posts=paginator.page(paginator.num_pages)
+        return render(request,'jugador/recomendacion/Recomendacion_Plataforma.html',{'listas':posts,'page':page})
     except Jugador.DoesNotExist:
         return redirect('error_404')
 
@@ -312,6 +397,24 @@ def juegos_random():
         except MultipleObjectsReturned:
             print("Excepcion generada:",MultipleObjectsReturned) 
             imagen = Imagen.objects.get(juego = id_aleatorio).first()[0]
+        except Exception as e:
+            print("Excepcion generada en inicio_jugador:",e)
+            imagen = Imagen.objects.get(juego = 1)
+        aleatorios.append((juego,imagen))
+    return aleatorios
+
+def lista_puntuacion(juegos_favoritos):
+    ##https://serpapi.com/images-results
+    """ Esta funcion regresa pares juego, su imagen aleatorio """
+    from django.core.exceptions import MultipleObjectsReturned
+    aleatorios = []
+    for game in juegos_favoritos:
+        juego = Juego.objects.get(titulo = game.juego)
+        try:
+            imagen = Imagen.objects.get(juego = game.juego)
+        except MultipleObjectsReturned:
+            print("Excepcion generada:",MultipleObjectsReturned) 
+            imagen = Imagen.objects.get(juego = game.juego).first()[0]
         except Exception as e:
             print("Excepcion generada en inicio_jugador:",e)
             imagen = Imagen.objects.get(juego = 1)

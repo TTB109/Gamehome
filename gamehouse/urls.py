@@ -21,6 +21,7 @@ urls_universales = [
     path('juegos/',sjug_juego.juegos, name = 'juegos'),
     path('Busqueda/',sjug_juego.busqueda, name = 'busqueda'),
     path('juegos/<int:id_juego>',sjug_juego.ver_juego,name='ver_juego'), #Ver el juego y un snippet de opiniones
+    path('juegos/<jugador>/agregar_videojuego/<int:id_juego>/',sjug_juego.agregar_videojuego,name='agregar_videojuego'), #Ver el juego y un snippet de opiniones
     path('juegos/<int:id_juego>/opiniones',sjug_juego.ver_juego,name='opiniones'), #Lista de opiniones
    # path('juegos/<int:id_juego>/opiniones/<jugador>',sjug_juego.opiniones_jugador,name='opiniones_juego'), #Ver la opinion de cierto juego
    # path('juegos/<int:id_juego>/opiniones/<jugador>/crear',sjug_juego.ver_juego,name='ver_juego'),

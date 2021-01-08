@@ -66,16 +66,21 @@ def registro(request):
         user_form = UserForm(request.POST)
         usuario_form = UsuarioForm(request.POST)
         jugador_form = JugadorForm(request.POST)
-        if all([usuario_form.is_valid(),jugador_form.is_valid(),user_form.is_valid()]):          
+        if all([usuario_form.is_valid(),jugador_form.is_valid(),user_form.is_valid()]):
+            # genero=request.POST.getlist('generos[]')
+            # plataforma=request.POST.getlist('plataformas[]')
+            # genero.append(jugador_form.data['generos'])
+            # plataforma.append(jugador_form.data['plataformas'])
+            # print("genero",genero)
+
             usuario = usuario_form.save()
             jugador = jugador_form.save(commit = False)
             jugador.id_jugador = usuario.id_usuario
-            #genero=user_form.cleaned_data['generos']
-            #plataforma=user_form.cleaned_data['plataformas']
-            #jugador.juegos.add(*genero)
-            #jugador.juegos.add(*plataforma)
+            # jugador.generos.add(*genero)
+            # jugador.plataformas.add(*plataforma)
             jugador.save()
             user_form.save()
+
             username = user_form.cleaned_data['username']
             password = user_form.cleaned_data['password1']
             usuario = authenticate(request, username =username, password = password)
