@@ -233,6 +233,7 @@ def im_tf_idf(corpus):
     vectores_tf_idf= tfidf_transformer.transform(vectores_frecuencias)
     """
     from sklearn.feature_extraction.text import TfidfVectorizer
+    print("Entro COrpus")
     vectorizer = TfidfVectorizer(use_idf=True)
     vectores_tf_idf = vectorizer.fit_transform(corpus)
     vectores_tf_idf = vectores_tf_idf.todense()
@@ -249,6 +250,7 @@ def im_tf_idf(corpus):
     output = open(archivo,'wb') #web -- write bytes
     dump(vocabulary,output, -1) #mete bytes en archivo nuestro diccionario de lemmas
     output.close()
+    print("Termino")
     return vectores_numpy
 
 """ FUNCION DE RECOMENDACION """
