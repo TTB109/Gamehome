@@ -37,7 +37,7 @@ class Genero(models.Model):
 
 class Compania(models.Model):
     id_compania = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=500)
     descripcion = models.TextField()
 
     def __str__(self):
@@ -80,7 +80,7 @@ class Imagen(models.Model):
     id_imagen = models.AutoField(primary_key=True)
     referencia = models.URLField(max_length=511)
     alt = models.CharField(
-        max_length=100,
+        max_length=200,
         verbose_name="Texto alternativo a la imagen")
     juego = models.ForeignKey(Juego,
                               on_delete=models.CASCADE,
@@ -121,8 +121,8 @@ class ListGeneros(models.Model):
                               related_name='generos_boolean',
                               verbose_name='generos en boolean',
                               )
-    listgenero = models.CharField(max_length=100)
-    listplataforma = models.CharField(max_length=100)
+    listgenero = models.CharField(max_length=200)
+    listplataforma = models.CharField(max_length=200)
 
     def __str__(self):
         return self.juego
