@@ -5,6 +5,7 @@ from gamehouse.sjug.views import universales
 from gamehouse.sjug.views import juego as sjug_juego
 from decouple import config
 from django.conf import settings
+from django.config.urls.static import static
 
 urls_universales = [
     path('', tv.as_view(template_name="homepage.html"), name='index'),  
@@ -48,6 +49,8 @@ urlpatterns = [
     path('recomendacion-plataforma/', universales.generar_rec_plataforma, name="generar_rec_plataforma"),
     path('normalizar-vectores/', universales.normalizar_vectores, name="normalizar_vectores"),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 """ 
 if settings.ADMIN_ENABLED is True:
