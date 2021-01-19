@@ -3,7 +3,7 @@ from django.urls import path, include, re_path,reverse
 
 from gamehouse.sjug.views import universales
 from gamehouse.sjug.views import juego as sjug_juego
-from decouple import config
+#from decouple import config
 from django.conf import settings
 from django.config.urls.static import static
 
