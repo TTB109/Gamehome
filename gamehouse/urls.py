@@ -49,11 +49,14 @@ urlpatterns = [
     path('normalizar-vectores/', universales.normalizar_vectores, name="normalizar_vectores"),
 ]
 
+""" 
 if settings.ADMIN_ENABLED is True:
 	from django.contrib import admin
 	urlpatterns += [path('admin/', admin.site.urls),]
 
-""" 
+
+
+
 	ACTIVACION DE ADMIN DJANGO:
 
 Para modo local
