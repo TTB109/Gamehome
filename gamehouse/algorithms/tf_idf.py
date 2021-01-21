@@ -253,6 +253,7 @@ def im_tf_idf(corpus):
     print("Termino")
     return vectores_numpy
 
+
 """ FUNCION DE RECOMENDACION """
 def recomendar_tf_idf(game,generos):
     from gamehouse.sjug.models import Imagen
@@ -262,18 +263,11 @@ def recomendar_tf_idf(game,generos):
     dt = open(game.vector, 'rb')
     vector_favorito = load(dt)
     dt.close()
-    #juego = game.juego
     juego_puntaje = []
+    juegos = set()
     for genero in generos:
-        juegos = []
-        numero_juegos = genero.juego_set.all().count()
-        muestreo = 20
-        if numero_juegos < 20:
-            muestreo = numero_juegos
-        randomList = random.sample(range(0, numero_juegos), muestreo)
-        for indice in randomList:
-            juegos.append(genero.juego_set.all()[indice])
-        for juego in juegos:
+        juegos.update(genero.juego_set.all())
+    for juego in juegos:
             ruta = Tf_Idf.objects.get(juego = juego)
             dt = open(ruta.vector, 'rb')
             vector_juego = load(dt)
@@ -281,10 +275,10 @@ def recomendar_tf_idf(game,generos):
             similitud = similitud_coseno(vector_favorito, vector_juego)
             juego_puntaje.append( (juego,similitud) )
     juego_puntaje.sort(key=lambda x: x[1], reverse=True)
-    juego_puntaje = juego_puntaje[:15]
     recomendacion = []
-    for pair in juego_puntaje:
-        recomendacion.append(pair[0])
+    for juego in juego_puntaje:
+        if juego[1] >= 0.15:
+            recomendacion.append(juego[0])
     return recomendacion
 
 

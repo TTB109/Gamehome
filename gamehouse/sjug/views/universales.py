@@ -21,8 +21,8 @@ PENDIENTES:
 """
 
 def login(request):
-    # if request.user.is_authenticated:
-    #     return redirect('juegos')    
+    if request.user.is_authenticated:
+        return redirect('juegos')    
     if request.method == 'POST':     
         username = request.POST['username']
         password = request.POST['password']
